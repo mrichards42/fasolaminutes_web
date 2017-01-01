@@ -41,6 +41,11 @@ div#minutes {
         background: rgba(203, 75, 2, .075);
     }
 
+    /* strike out ignored leaders */
+    .ignore-section {
+        text-decoration: line-through;
+    }
+
     .other_leader {
         color: $orange;
     }
