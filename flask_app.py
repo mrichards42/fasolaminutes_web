@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+import os
 from flask import Flask, g, request, render_template
 from sassutils.wsgi import SassMiddleware
 import minutes_db
@@ -24,10 +25,6 @@ def get_db():
 def close_connection(exception):
     if hasattr(g, 'db'):
         g.db.close()
-
-app.wsgi_app = SassMiddleware(app.wsgi_app, {
-    __name__: ('static/sass', 'static/css', '/static/css')
-})
 
 # Routes
 @app.route("/")
@@ -56,9 +53,19 @@ def minutes(id):
         leads=parse(minutes['minutes'], song_title=True, breaks=True)
     )
 
+if os.environ.get('FLASK_DEBUG'):
+    # Sass debugging
+    from sassutils.wsgi import SassMiddleware
+    app.wsgi_app = SassMiddleware(app.wsgi_app, {
+        __name__: ('static/sass', 'static/css', '/static/css')
+    })
+else:
+    # Build all sass files once for production
+    from sassutils.builder import build_directory
+    build_directory('static/sass', 'static/css')
+
 if __name__ == "__main__":
     from subprocess import call
-    import os
     os.environ['FLASK_APP'] = __file__
     os.environ['FLASK_DEBUG'] = '1'
     call(['flask', 'run'])
