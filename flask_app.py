@@ -62,7 +62,10 @@ if os.environ.get('FLASK_DEBUG'):
 else:
     # Build all sass files once for production
     from sassutils.builder import build_directory
-    build_directory('static/sass', 'static/css')
+    build_directory(
+        os.path.join(os.path.dirname(__file__), 'static', 'sass'),
+        os.path.join(os.path.dirname(__file__), 'static', 'css'),
+    )
 
 if __name__ == "__main__":
     from subprocess import call
