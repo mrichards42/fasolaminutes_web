@@ -3,6 +3,7 @@
 {% block title %}{{ minutes.name }} - {{ minutes.date }}{% endblock %}
 
 {% block content %}
+    <div id="minutes-wrapper" class="wrapper">
     <div id="minutes">
         <h1>{{ minutes.name }}</h1>
         <h2>{{ minutes.location }}</h2>
@@ -22,7 +23,9 @@
             {% endfor %}
         {% endif %}
     </div>
+    </div>
     {% if leads %}
+        <div id="leads-wrapper" class="wrapper">
         <div id="leads">
         <table>
             <tr><th colspan="2">PARSED MINUTES</th></tr>
@@ -39,6 +42,7 @@
             {% endif %}
         {% endfor %}
         </table>
+        </div>
         </div>
     {% endif %}
 {% endblock %}

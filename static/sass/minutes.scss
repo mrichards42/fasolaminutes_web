@@ -1,7 +1,29 @@
 @import 'index';
 
+body, html, div#content {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+div.wrapper {
+    height: 100%;
+    overflow: auto;
+}
+
+div#minutes-wrapper {
+    margin-right: 25em;
+}
+
+div#leads-wrapper {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 25em;
+}
+
 div#minutes {
-    margin-right: 30em;
+    padding: 1em;
 
     /* important things we recognize */
     .song .number, .song .title, .page, .book, .song_title {
@@ -59,13 +81,10 @@ div#minutes {
 
 
 div#leads {
-    position: absolute;
-    right: 0;
-    top: 0;
-    overflow: auto;
-    padding: 1em;
 
     table {
+        width: 100%;
+        border: 2px solid $green;
         border-collapse: collapse;
 
         th {
@@ -101,6 +120,7 @@ div#leads {
 
         td {
             padding: .1em;
+            width: 50%;
         }
     }
 }
