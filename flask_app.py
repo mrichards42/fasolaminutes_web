@@ -2,7 +2,9 @@
 # encoding: utf-8
 
 import os
-from flask import Flask, g, request, render_template
+import re
+import sqlite3
+from flask import Flask, g, request, render_template, jsonify
 from sassutils.wsgi import SassMiddleware
 import minutes_db
 
@@ -51,6 +53,51 @@ def minutes(id):
         tokens=tokenize(minutes['minutes']),
         leads=parse(minutes['minutes'], song_title=True, breaks=True)
     )
+
+@app.route("/search/<table>/<fields>")
+def search(table, fields=''):
+    """Query a db table, returning json.
+
+    Query params:
+        q -- the search term
+        fields -- additional columns to return
+
+    """
+    fields = fields.split(',')
+    term = request.args.get('q')
+    select_fields = request.args.get('fields', [])
+    if select_fields:
+        select_fields = set(['id'] + fields + select_fields.split(','))
+
+    # Guard against bad table/field combos
+    for name in [table] + fields + list(select_fields):
+         if not re.match(r'^\w+$', name):
+            if os.environ.get('FLASK_DEBUG'):
+                raise Exception("Bad name: %r" % name)
+            return jsonify(results=[])
+
+    if not term:
+        return jsonify(results=[])
+
+    # Build a query:
+    # SELECT id, <fields> FROM <table>
+    sql = "SELECT " + ','.join(select_fields or ['*']) + " FROM " + table
+
+    # WHERE <field> LIKE %searchterm% OR <field> LIKE %searchterm% ...
+    sql += " WHERE "
+    sql += " OR ".join(f + " LIKE ?" for f in fields)
+    args = ['%' + term + '%'] * len(fields)
+
+    sql += " LIMIT 20"
+    results = []
+    try:
+        for row in get_db().execute(sql, args):
+            results.append(dict(zip(row.keys(), row)))
+        return jsonify(results=results);
+    except sqlite3.Error as e:
+        if os.environ.get('FLASK_DEBUG'):
+            raise
+        return jsonify(results=[])
 
 if os.environ.get('FLASK_DEBUG'):
     # Sass debugging
