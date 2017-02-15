@@ -1,6 +1,12 @@
 {% extends "base.html" %}
 
-{% block title %}{{ minutes.name }} - {{ minutes.date }}{% endblock %}
+{%- block assets -%}
+    {{ stylesheet('minutes' if not split else 'minutes_split') }}
+{%- endblock -%}
+
+{%- block title -%}
+    {{ minutes.name }} - {{ minutes.date }}
+{%- endblock -%}
 
 {% block content %}
     <div id="minutes-wrapper" class="wrapper">

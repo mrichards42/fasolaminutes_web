@@ -1,0 +1,13 @@
+{%- macro make_url(url, pattern) -%}
+    {%- if url.startswith('/') or url.startswith('http') -%}
+        {{ url }}
+    {%- else -%}
+        {{ url_for('static', filename=pattern.replace('{}', url)) }}
+    {%- endif %}
+{%- endmacro -%}
+
+{%- macro attrs(attrs) -%}
+    {%- for key, value in attrs.iteritems() %}
+        {{ key }}="{{ value }}"
+    {%- endfor -%}
+{%- endmacro -%}

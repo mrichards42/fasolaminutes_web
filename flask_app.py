@@ -40,15 +40,14 @@ def minutes(id):
         FROM minutes
         WHERE id=?
     """, [id]).fetchone()
-    g.stylesheet = 'minutes'    
-    if request.args.get('split') is not None:
-        g.stylesheet += '_split'
+    split = request.args.get('split') is not None
     if request.args.get('raw') is not None:
-        return render_template('minutes.html', minutes=minutes)
+        return render_template('minutes.html', minutes=minutes, split=split)
 
     return render_template(
         'minutes.html',
         minutes=minutes,
+        split=split,
         tokens=tokenize(minutes['minutes']),
         leads=parse(minutes['minutes'], song_title=True, breaks=True)
     )

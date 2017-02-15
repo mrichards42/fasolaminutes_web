@@ -1,10 +1,40 @@
+{% import 'util.html' as util %}
+
+{# Tag macros #}
+
+{%- macro stylesheet() -%}
+    {%- for href in varargs -%}
+        <link rel="stylesheet" href="{{ util.make_url(href, 'css/{}.scss.css') }}"{{ util.attrs(kwargs) }}/>
+    {%- endfor -%}
+{%- endmacro -%}
+
+{%- macro script() -%}
+    {%- for src in varargs -%}
+        <script src="{{ util.make_url(src, 'js/{}.js') }}"{{ util.attrs(kwargs) }}></script>
+    {%- endfor -%}
+{%- endmacro -%}
+
+{%- macro img(src) -%}
+    <img src="{{ util.make_url(src, 'images/{}') }}"{{ util.attrs(kwargs) }}/>
+{%- endmacro -%}
+
+{# Plural aliases #}
+
+{%- macro stylesheets() -%}
+    {{ stylesheet(*varargs, **kwargs) }}
+{%- endmacro -%}
+
+{%- macro scripts() -%}
+    {{ script(*varargs, **kwargs) }}
+{%- endmacro -%}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    {% block head %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/%s.scss.css' % (stylesheet or g.stylesheet or 'index')) }}" />
+    {% block head -%}
+    {% block assets %}{{ stylesheet('index') }}{% endblock %}
     <title>{% block title %}{% endblock %}</title>
-    {% endblock %}
+    {%- endblock %}
 </head>
 <body>
     <div id="content">{% block content %}{% endblock %}</div>
