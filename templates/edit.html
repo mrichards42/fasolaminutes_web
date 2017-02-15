@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{%- block assets -%}
+    {{ stylesheet('edit') }}
+    {{ script(
+        "https://code.jquery.com/jquery-3.1.1.min.js",
+        integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=",
+        crossorigin="anonymous") }}
+    {# handsontable #}
+    {{ script('//handsontable.com/dist/handsontable.full.js') }}
+    {{ stylesheet('//handsontable.com/dist/handsontable.full.css', media='screen') }}
+{%- endblock -%}
+
+{% block title %}Minutes Editor{% endblock %}
+
+{% import 'autocomplete.html' as autocomplete %}
+{% block content %}
+    <div id="search-wrapper" class="wrapper">
+        {{ autocomplete.input(
+            type="text",
+            id="minutes-search",
+            options=all_minutes,
+            placeholder="Select Minutes to Edit") }}
+    </div>
+    <div id="editor"></div>
+
+    <script>var minutes_id = '{{ id or '' }}';</script>
+    {{ script('edit') }}
+{% endblock %}

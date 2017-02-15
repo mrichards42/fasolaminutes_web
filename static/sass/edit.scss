@@ -1,0 +1,18 @@
+@import 'index';
+
+body, html, div#content {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+#search-wrapper {
+    width: 500em;
+    max-width: 90%;
+    margin: auto;
+    padding: 1em;
+}
+
+#search-wrapper input {
+    width: 100%;
+}

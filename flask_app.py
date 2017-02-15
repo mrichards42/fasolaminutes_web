@@ -8,6 +8,7 @@ import requests
 import json
 from lxml import html
 from flask import Flask, g, request, render_template, jsonify
+from werkzeug.contrib.cache import SimpleCache
 from sassutils.wsgi import SassMiddleware
 import minutes_db
 
@@ -15,6 +16,7 @@ from fasolaminutes_parsing.tokenizer import tokenize
 from fasolaminutes_parsing.parse import parse
 
 app = Flask(__name__)
+cache = SimpleCache()
 
 # Hack fasolaminutes_parsing db location to the correct relative path
 import fasolaminutes_parsing.minutes_db as parsing_db
@@ -56,6 +58,31 @@ def minutes(id):
         tokens=tokenize(minutes['minutes']),
         leads=parse(minutes['minutes'], song_title=True, breaks=True)
     )
+
+@app.route("/edit")
+@app.route("/edit/<int:id>")
+def edit(id=None):
+    options = cache.get('edit_all_minutes')
+    if not options:
+        sql = """
+            SELECT '(' || id || ') ' || name || ' - ' || location || ' - ' || date
+            FROM minutes
+        """
+        options = [text for (text,) in get_db().execute(sql)]
+        cache.set('edit_all_minutes', options)
+
+    return render_template('edit.html', id=id, all_minutes=options)
+
+@app.route("/edit/data/<int:id>")
+def edit_data(id):
+    sql = """
+        SELECT songs.PageNum, leaders.name, slj.audio_url
+        FROM song_leader_joins slj
+        JOIN songs ON slj.song_id = songs.id
+        JOIN leaders ON slj.leader_id = leaders.id
+        WHERE slj.minutes_id = ?
+    """
+    return jsonify([list(row) for row in get_db().execute(sql, [id])])
 
 page_regex = re.compile(r'^\s*[([]?(\d{2,3}[tb]?)', re.I)
 

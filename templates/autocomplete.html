@@ -1,0 +1,10 @@
+{% import 'util.html' as util %}
+
+{%- macro input(id, type='text', name=None, options=[]) -%}
+    <input type="{{ type }}" id="{{ id }}" name="{{ name or id }}" list="{{ id }}-list"{{ util.attrs(kwargs) }}>
+    <datalist id="{{ id }}-list">
+        {%- for value in options %}
+            <option value="{{ value }}">
+        {%- endfor %}
+    </datalist>
+{%- endmacro -%}
