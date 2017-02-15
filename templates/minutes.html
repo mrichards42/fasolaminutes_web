@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}{{ minutes.name }} - {{ minutes.date }}{% endblock %}
+
+{% block content %}
+    <div id="minutes">
+        <h1>{{ minutes.name }}</h1>
+        <h2>{{ minutes.location }}</h2>
+        <h3>{{ minutes.date }}</h3>
+        {% if tokens %}
+            <p>
+            {%- for token in tokens -%}
+                {{- token.to_html() | safe -}}
+                {%- if token.name == "paragraph" -%}
+                    </p><p>
+                {%- endif -%}
+            {%- endfor -%}
+            </p>
+        {% else %}
+            {% for line in minutes.minutes.split('\n') %}
+                <p>{{ line }}</p>
+            {% endfor %}
+        {% endif %}
+    </div>
+    {% if leads %}
+        <div id="leads">
+        <table>
+            <tr><th colspan="2">PARSED MINUTES</th></tr>
+        {% set last_song = "" %}
+        {% for lead in leads %}
+            {% if lead.song == 'BREAK' %}
+                <tr class="break"><td colspan="2">{{ lead.leader }}</td></tr>
+            {% else %}
+                <tr class="lead {% if last_song == lead.song %}colead{% endif %}">
+                    <td class="song">{{ lead.song }}</td>
+                    <td class="leader">{{ lead.leader }}</td>
+                    {% set last_song = lead.song %}
+                </tr>
+            {% endif %}
+        {% endfor %}
+        </table>
+        </div>
+    {% endif %}
+{% endblock %}

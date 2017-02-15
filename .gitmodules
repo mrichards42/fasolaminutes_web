@@ -1,0 +1,4 @@
+[submodule "fasolaminutes_parsing"]
+	path = fasolaminutes_parsing
+	url = https://github.com/mrichards42/fasolaminutes_parsing
+	branch = new-parser

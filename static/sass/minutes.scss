@@ -1,0 +1,107 @@
+@import 'index';
+
+div#minutes {
+    margin-right: 30em;
+
+    /* important things we recognize */
+    .song .number, .song .title, .page, .book, .song_title {
+        color: $blue;
+        font-weight: bold;
+    }
+
+    .book_title {
+        color: $blue;
+        font-style: italic;
+    }
+
+    .leader, .leader_list .first, .leader_list .middle, .leader_list .last {
+        color: $orange;
+        background: rgba(203, 75, 2, .075);
+    }
+
+    .other_leader {
+        color: $orange;
+    }
+
+    .role {
+        color: $green;
+    }
+
+    .leader_list {
+        text-decoration: underline;
+    }
+
+    .date {
+        color: $cyan;
+        font-weight: bold;
+    }
+
+    .session, .break {
+        color: $yellow;
+        font-style: italic;
+    }
+
+    /* delimiters */
+    .sentence, .stop_punctuation {
+        background: lightgrey;
+    }
+
+    .needs_space_punctuation, .no_space_punctuation {
+        color: $green;
+        font-weight: bold;
+    }
+
+    /* things we want to ignore */
+    .aside, .quote {
+        font-style: italic;
+    }
+}
+
+
+div#leads {
+    position: absolute;
+    right: 0;
+    top: 0;
+    overflow: auto;
+    padding: 1em;
+
+    table {
+        border-collapse: collapse;
+
+        th {
+            font-size: 125%;
+        }
+
+        th, tr.break {
+            border-bottom: 2px solid $green;
+            border-top: 2px solid $green;
+            text-align: center;
+        }
+
+        tr.lead {
+            .song {
+                color: $blue;
+                font-weight: bold;
+                text-align: right;
+            }
+
+            .leader {
+                color: $orange;
+            }
+
+            &:not(.colead) {
+                border-top: 1px dotted gray;
+            }
+
+            &.colead .song {
+                color: lightgray;
+                font-weight: normal;
+            }
+        }
+
+        td {
+            padding: .1em;
+        }
+    }
+}
+

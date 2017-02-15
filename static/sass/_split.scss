@@ -1,0 +1,16 @@
+/* split query styles */
+
+.paragraph, p {
+    border-left: 3px solid grey;
+    padding-left: 3px;
+    display: block;
+}
+
+p {
+    margin-bottom: 2.5em;
+}
+
+.sentence::after, .stop_punctuation::after {
+    content: '';
+    display: block;
+}

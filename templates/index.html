@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Index of Minutes ids{% endblock %}
+
+{% block content %}
+    {% set year = 0 %}
+    {% for minutes in rows %}
+        {% if year < minutes.year %}
+            {% set year = minutes.year %}
+            <h1>{{ year }}</h1>
+        {% endif %}
+        <div>
+            <a href="minutes/{{ minutes.id }}">{{ minutes.name }} - {{ minutes.date }}</a>
+        </div>
+    {% endfor %}
+{% endblock %}

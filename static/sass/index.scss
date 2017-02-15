@@ -1,0 +1,25 @@
+@import '_colors';
+
+/* basic styles */
+body, pre {
+    background: $background;
+    color: $textcolor;
+    font: .9em consolas, monospace;
+}
+
+::selection {
+    background: $highlighted;
+}
+
+::-moz-selection {
+    background: $highlighted;
+}
+
+.newline {
+    white-space: pre;
+    margin-bottom: 1em;
+}
+
+p {
+    margin-bottom: 1.25em;
+}
