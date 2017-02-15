@@ -4,6 +4,9 @@
 import os
 import re
 import sqlite3
+import requests
+import json
+from lxml import html
 from flask import Flask, g, request, render_template, jsonify
 from sassutils.wsgi import SassMiddleware
 import minutes_db
@@ -53,6 +56,39 @@ def minutes(id):
         tokens=tokenize(minutes['minutes']),
         leads=parse(minutes['minutes'], song_title=True, breaks=True)
     )
+
+page_regex = re.compile(r'^\s*[([]?(\d{2,3}[tb]?)', re.I)
+
+@app.route("/import-recording")
+def import_recording():
+    url = request.args.get('url')
+    if not url:
+        return jsonify({'tracks':[]})
+
+    # Load the page and read wp-playlist-script (a json blob)
+    page = requests.get(url)
+    doc = html.fromstring(page.content)
+    playlists = doc.xpath('//script[@class="wp-playlist-script"]/text()')
+
+    # Look for songs in the text
+    albums = {}
+    order = []
+    for data in playlists:
+        playlist = json.loads(data)
+        for song in playlist.get('tracks', []):
+            url = song['src']
+            match = page_regex.match(song['title'])
+            if match:
+                album = song.get('meta', {}).get('album')
+                if album not in albums:
+                    albums[album] = []
+                    order.append(album)
+                albums[album].append({'url': song['src'], 'pagenum': match.group(1)})
+
+    return jsonify({'albums': [
+        {'album': album, 'tracks': albums[album]}
+        for album in order
+    ]})
 
 @app.route("/search/<table>/<fields>")
 def search(table, fields=''):
