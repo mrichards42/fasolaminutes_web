@@ -33,7 +33,7 @@ def index():
     cursor = get_db().execute("SELECT id, name, location, date, year FROM minutes")
     return render_template('index.html', rows = cursor)
 
-@app.route("/minutes/<id>")
+@app.route("/minutes/<int:id>")
 def minutes(id):
     minutes = get_db().execute("""
         SELECT id, name, location, date, minutes
