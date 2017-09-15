@@ -11,19 +11,18 @@ div.wrapper {
     overflow: auto;
 }
 
-div#minutes-wrapper {
-    margin-right: 25em;
-}
-
 div#leads-wrapper {
-    position: absolute;
-    right: 0;
-    top: 0;
-    width: 25em;
+    overflow: hidden;
 }
 
 div#minutes {
     padding: 1em;
+
+    .token-selected {
+        /* background: rgba( lighten( desaturate( $darkHighlight, 30% ), 50% ), 0.3 ); */
+        background: lighten($darkHighlight, 75%);
+        border: px solid $darkHighlight;
+    }
 
     /* important things we recognize */
     .song .number, .song .title, .page, .book, .song_title {

@@ -1,7 +1,27 @@
 {% extends "base.html" %}
 
 {%- block assets -%}
+    {# libraries #}
+    {{ script(
+        "https://code.jquery.com/jquery-3.1.1.min.js",
+        integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=",
+        crossorigin="anonymous") }}
+    {{ script("https://cdnjs.cloudflare.com/ajax/libs/split.js/1.2.0/split.min.js") }}
+    {{ stylesheet("splitjs") }}
+    {{ script("https://cdn.jsdelivr.net/lodash/4.17.4/lodash.min.js") }}
+
+    {# handsontable #}
+    {{ script('//handsontable.com/dist/handsontable.full.js') }}
+    {{ stylesheet('//handsontable.com/dist/handsontable.full.css', media='screen') }}
+
+    {# minutes stuff #}
     {{ stylesheet('minutes' if not split else 'minutes_split') }}
+    {% if leads %}
+        <script type="application/json" id="leads-json">
+            {{ {"leads": leads, "minutes_id": minutes.id} | tojson }}
+        </script>
+    {% endif %}
+    {{ script('minutes') }}
 {%- endblock -%}
 
 {%- block title -%}
@@ -9,7 +29,7 @@
 {%- endblock -%}
 
 {% block content %}
-    <div id="minutes-wrapper" class="wrapper">
+    <div id="minutes-wrapper" class="wrapper split-horizontal">
     <div id="minutes">
         <h1>{{ minutes.name }}</h1>
         <h2>{{ minutes.location }}</h2>
@@ -40,24 +60,8 @@
     </div>
     </div>
     {% if leads %}
-        <div id="leads-wrapper" class="wrapper">
-        <div id="leads">
-        <table>
-            <tr><th colspan="2">PARSED MINUTES</th></tr>
-        {% set last_song = "" %}
-        {% for lead in leads %}
-            {% if lead.song == 'BREAK' %}
-                <tr class="break"><td colspan="2">{{ lead.leader }}</td></tr>
-            {% else %}
-                <tr class="lead {% if last_song == lead.song %}colead{% endif %}">
-                    <td class="song">{{ lead.song }}</td>
-                    <td class="leader">{{ lead.leader }}</td>
-                    {% set last_song = lead.song %}
-                </tr>
-            {% endif %}
-        {% endfor %}
-        </table>
-        </div>
+        <div id="leads-wrapper" class="wrapper split-horizontal">
+            <div id="leads-table"></div>
         </div>
     {% endif %}
 {% endblock %}

@@ -46,6 +46,11 @@ def minutes(minutes_id):
         return render_template('minutes.html', minutes=minutes, split=split)
     leads, tokens = parse(minutes['minutes'], song_title=True, breaks=True)
 
+    # Transform leads tokens into token ids
+    for idx, lead in enumerate(leads):
+        lead['leader_id'] = id(lead.pop('leader_token', None))
+        lead['song_id'] = id(lead.pop('song_token', None))
+
     return render_template(
         'minutes.html',
         minutes=minutes,
