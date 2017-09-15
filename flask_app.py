@@ -33,23 +33,25 @@ def index():
     cursor = get_db().execute("SELECT id, name, location, date, year FROM minutes")
     return render_template('index.html', rows = cursor)
 
-@app.route("/minutes/<int:id>")
-def minutes(id):
+@app.route("/minutes/<int:minutes_id>")
+def minutes(minutes_id):
+    # Load and parse the minutes
     minutes = get_db().execute("""
         SELECT id, name, location, date, minutes
         FROM minutes
         WHERE id=?
-    """, [id]).fetchone()
+    """, [minutes_id]).fetchone()
     split = request.args.get('split') is not None
     if request.args.get('raw') is not None:
         return render_template('minutes.html', minutes=minutes, split=split)
+    leads, tokens = parse(minutes['minutes'], song_title=True, breaks=True)
 
     return render_template(
         'minutes.html',
         minutes=minutes,
         split=split,
-        tokens=tokenize(minutes['minutes']),
-        leads=parse(minutes['minutes'], song_title=True, breaks=True)
+        tokens=tokens,
+        leads=leads
     )
 
 if os.environ.get('FLASK_DEBUG'):
@@ -69,5 +71,5 @@ else:
 if __name__ == "__main__":
     from subprocess import call
     os.environ['FLASK_APP'] = __file__
-    os.environ['FLASK_DEBUG'] = '1'
+    #os.environ['FLASK_DEBUG'] = '1'
     call(['flask', 'run'])
