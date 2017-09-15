@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{%- block assets -%}
+    {{ stylesheet('minutes_new') }}
+{%- endblock -%}
+
+{%- block title -%}
+    Parse Minutes Text
+{%- endblock -%}
+
+{% block content %}
+    <form method="post">
+        <label for="minutes">Raw Minutes Text: </label>
+        <textarea id="minutes" name="minutes"></textarea>
+        <input type="submit" value="Parse Minutes">
+    </form>
+{% endblock %}

@@ -1,0 +1,10 @@
+@import 'index';
+
+label, textarea, input {
+    display: block;
+}
+
+textarea#minutes {
+    width: 100%;
+    height: 30em;
+}

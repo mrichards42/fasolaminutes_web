@@ -25,7 +25,11 @@
 {%- endblock -%}
 
 {%- block title -%}
-    {{ minutes.name }} - {{ minutes.date }}
+    {%- if minutes.name and minutes.date -%}
+        {{ minutes.name }} - {{ minutes.date }}
+    {%- else -%}
+        {{ minutes.name or minutes.date or 'Parsed miuntes' }}
+    {%- endif -%}
 {%- endblock -%}
 
 {% block content %}

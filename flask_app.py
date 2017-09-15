@@ -34,13 +34,14 @@ def index():
     return render_template('index.html', rows = cursor)
 
 @app.route("/minutes/<int:minutes_id>")
-def minutes(minutes_id):
+def minutes(minutes_id, minutes=None):
     # Load and parse the minutes
-    minutes = get_db().execute("""
-        SELECT id, name, location, date, minutes
-        FROM minutes
-        WHERE id=?
-    """, [minutes_id]).fetchone()
+    if not minutes:
+        minutes = get_db().execute("""
+            SELECT id, name, location, date, minutes
+            FROM minutes
+            WHERE id=?
+        """, [minutes_id]).fetchone()
     split = request.args.get('split') is not None
     if request.args.get('raw') is not None:
         return render_template('minutes.html', minutes=minutes, split=split)
@@ -58,6 +59,13 @@ def minutes(minutes_id):
         tokens=tokens,
         leads=leads
     )
+
+
+@app.route("/minutes/new", methods=['GET', 'POST'])
+def minutes_new():
+    if request.method == 'POST':
+        return minutes(-1, {'minutes':request.form['minutes'], 'id':-1})
+    return render_template('minutes_new.html')
 
 if os.environ.get('FLASK_DEBUG'):
     # Sass debugging
