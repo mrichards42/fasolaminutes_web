@@ -2,7 +2,8 @@
 # encoding: utf-8
 
 import os
-from flask import Flask, g, request, render_template
+import json
+from flask import Flask, g, request, render_template, jsonify
 from sassutils.wsgi import SassMiddleware
 import minutes_db
 
@@ -19,7 +20,40 @@ parsing_db.dbname = minutes_db.dbname
 def get_db():
     if not hasattr(g, 'db'):
         g.db = minutes_db.open()
+        # Update the Schema
+        g.db.execute("""
+            CREATE TABLE IF NOT EXISTS minutes_corrections (
+                minutes_id INTEGER NOT NULL,
+                user_id INTEGER NOT NULL,
+                json TEXT,
+                revision INT,
+                PRIMARY KEY (minutes_id, user_id)
+            )
+        """)
     return g.db
+
+def save_minutes_data(minutes_id, user, leads, revision=1):
+    db = get_db()
+    leads = json.dumps({'leads': leads})
+    # Try to update first
+    curs = db.execute("""
+        UPDATE minutes_corrections
+        SET json=?, revision=?
+        WHERE minutes_id=? AND user_id=?
+    """, [leads, revision, minutes_id, user])
+    # Insert if that fails
+    if curs.rowcount == 0:
+        db.execute("""
+            INSERT INTO minutes_corrections (minutes_id, user_id, json, revision)
+            VALUES (?, ?, ?, ?)
+        """, [minutes_id, user, leads, revision])
+    db.commit()
+
+def load_minutes_data(minutes_id, user):
+    return get_db().execute("""
+        SELECT * FROM minutes_corrections
+        WHERE minutes_id=? AND user_id=?
+    """, [minutes_id, user]).fetchone()
 
 @app.teardown_appcontext
 def close_connection(exception):
@@ -51,6 +85,14 @@ def minutes(minutes_id):
         lead['leader_id'] = id(lead.pop('leader_token', None))
         lead['song_id'] = id(lead.pop('song_token', None))
 
+    # Load corrected minutes and join with the parsed minutes
+    try:
+        corrected = load_minutes_data(minutes_id, 'test-user')
+        if corrected:
+            leads = json.loads(corrected['json'])['leads']
+    except ValueError:
+        pass # Use the newly parsed leads
+
     return render_template(
         'minutes.html',
         minutes=minutes,
@@ -58,6 +100,36 @@ def minutes(minutes_id):
         tokens=tokens,
         leads=leads
     )
+
+@app.route("/minutes-save/<int:minutes_id>", methods=['POST'])
+def minutes_save(minutes_id):
+    data = request.get_json()
+    if not data or 'leads' not in data:
+        return jsonify({'saved': False, 'reason': 'No leads'});
+    if 'revision' not in data or 'user' not in data:
+        return jsonify({'saved': False, 'reason': 'Missing data'});
+    # We only care about song, leader, and original.song, original.leader, and
+    # we want to throw away any other junk, like leader_id, song_id
+    leads = []
+    for lead in data['leads']:
+        try:
+            leads.append({
+                'song': lead['song'],
+                'leader': lead['leader'],
+                'original': {
+                    'song': lead['original']['song'],
+                    'leader': lead['original']['leader']
+                }
+            })
+        except KeyError:
+            return jsonify({'saved': False, 'reason': 'song, leader, original.song, and original.leader must be present'});
+    save_minutes_data(
+        minutes_id=minutes_id,
+        user=data['user'],
+        revision=data['revision'],
+        leads=leads,
+    )
+    return jsonify({'saved': True});
 
 if os.environ.get('FLASK_DEBUG'):
     # Sass debugging

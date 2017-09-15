@@ -54,6 +54,19 @@ $(function() {
     var songDiffRenderer = diffRenderer('song');
     var leaderDiffRenderer = diffRenderer('leader');
 
+    var saveLeads = _.debounce(function() {
+        data.revision = (data.revision || 0) + 1
+        $.post({
+            url: '/minutes-save/' + minutes_id,
+            data: JSON.stringify({
+                leads: leads,
+                user: data.user || 'test-user',
+                revision: data.revision,
+            }),
+            contentType: "application/json; charset=utf-8",
+        });
+    }, 1000);
+
     // Autocomplete names
     var leaderNames = []
     function updateAutocomplete() {
@@ -121,6 +134,7 @@ $(function() {
                     if (changes[i][2] !== changes[i][3]) {
                         console.log('got changes', changes)
                         updateAutocomplete();
+                        saveLeads();
                         return;
                     }
                 }
@@ -129,9 +143,11 @@ $(function() {
         },
         afterRemoveRow: function() {
             updateAutocomplete()
+            saveLeads();
         },
         afterAddRow: function() {
             updateAutocomplete()
+            saveLeads();
         },
         afterSelection: function(rowStart, colStart, rowEnd, colEnd) {
             // Highlight the tokens in the selected rows
